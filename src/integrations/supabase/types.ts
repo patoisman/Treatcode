@@ -7,33 +7,140 @@ export type Json =
   | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.4";
-  };
   public: {
     Tables: {
       accounts: {
         Row: {
-          balance: number;
-          created_at: string | null;
           id: string;
           user_id: string | null;
+          balance: number;
+          created_at: string | null;
         };
         Insert: {
-          balance?: number;
-          created_at?: string | null;
           id?: string;
           user_id?: string | null;
+          balance?: number;
+          created_at?: string | null;
         };
         Update: {
-          balance?: number;
-          created_at?: string | null;
           id?: string;
           user_id?: string | null;
+          balance?: number;
+          created_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "accounts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      profiles: {
+        Row: {
+          id: string;
+          full_name: string | null;
+          created_at: string | null;
+          email: string | null;
+          gocardless_customer_id: string | null;
+          gocardless_mandate_id: string | null;
+          mandate_status: "pending" | "active" | "cancelled" | "expired" | null;
+        };
+        Insert: {
+          id: string;
+          full_name?: string | null;
+          created_at?: string | null;
+          email?: string | null;
+          gocardless_customer_id?: string | null;
+          gocardless_mandate_id?: string | null;
+          mandate_status?:
+            | "pending"
+            | "active"
+            | "cancelled"
+            | "expired"
+            | null;
+        };
+        Update: {
+          id?: string;
+          full_name?: string | null;
+          created_at?: string | null;
+          email?: string | null;
+          gocardless_customer_id?: string | null;
+          gocardless_mandate_id?: string | null;
+          mandate_status?:
+            | "pending"
+            | "active"
+            | "cancelled"
+            | "expired"
+            | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey";
+            columns: ["id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      transactions: {
+        Row: {
+          id: string;
+          account_id: string | null;
+          amount: number;
+          type:
+            | "credit"
+            | "debit"
+            | "direct_debit_deposit"
+            | "voucher_redemption";
+          description: string | null;
+          created_at: string | null;
+          mandate_id: string | null;
+          redemption_id: string | null;
+          gocardless_payment_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          account_id?: string | null;
+          amount: number;
+          type:
+            | "credit"
+            | "debit"
+            | "direct_debit_deposit"
+            | "voucher_redemption";
+          description?: string | null;
+          created_at?: string | null;
+          mandate_id?: string | null;
+          redemption_id?: string | null;
+          gocardless_payment_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          account_id?: string | null;
+          amount?: number;
+          type?:
+            | "credit"
+            | "debit"
+            | "direct_debit_deposit"
+            | "voucher_redemption";
+          description?: string | null;
+          created_at?: string | null;
+          mandate_id?: string | null;
+          redemption_id?: string | null;
+          gocardless_payment_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_userid_fkey";
+            columns: ["account_id"];
+            isOneToOne: false;
+            referencedRelation: "accounts";
+            referencedColumns: ["user_id"];
+          },
+        ];
       };
       deposits: {
         Row: {
@@ -47,7 +154,7 @@ export type Database = {
           confirmed_at: string | null;
           paid_out_at: string | null;
           failure_reason: string | null;
-          metadata: Json;
+          metadata: Json | null;
         };
         Insert: {
           id?: string;
@@ -60,7 +167,7 @@ export type Database = {
           confirmed_at?: string | null;
           paid_out_at?: string | null;
           failure_reason?: string | null;
-          metadata?: Json;
+          metadata?: Json | null;
         };
         Update: {
           id?: string;
@@ -78,9 +185,17 @@ export type Database = {
           confirmed_at?: string | null;
           paid_out_at?: string | null;
           failure_reason?: string | null;
-          metadata?: Json;
+          metadata?: Json | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "deposits_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       direct_debit_settings: {
         Row: {
@@ -113,7 +228,15 @@ export type Database = {
           created_at?: string | null;
           updated_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "direct_debit_settings_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       gocardless_events: {
         Row: {
@@ -157,90 +280,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      profiles: {
-        Row: {
-          created_at: string | null;
-          email: string | null;
-          full_name: string | null;
-          gocardless_customer_id: string | null;
-          gocardless_mandate_id: string | null;
-          id: string;
-          mandate_status: "pending" | "active" | "cancelled" | "expired" | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          email?: string | null;
-          full_name?: string | null;
-          gocardless_customer_id?: string | null;
-          gocardless_mandate_id?: string | null;
-          id: string;
-          mandate_status?:
-            | "pending"
-            | "active"
-            | "cancelled"
-            | "expired"
-            | null;
-        };
-        Update: {
-          created_at?: string | null;
-          email?: string | null;
-          full_name?: string | null;
-          gocardless_customer_id?: string | null;
-          gocardless_mandate_id?: string | null;
-          id?: string;
-          mandate_status?:
-            | "pending"
-            | "active"
-            | "cancelled"
-            | "expired"
-            | null;
-        };
-        Relationships: [];
-      };
-      transactions: {
-        Row: {
-          account_id: string | null;
-          amount: number;
-          created_at: string | null;
-          description: string | null;
-          gocardless_payment_id: string | null;
-          id: string;
-          mandate_id: string | null;
-          redemption_id: string | null;
-          type: string;
-        };
-        Insert: {
-          account_id?: string | null;
-          amount: number;
-          created_at?: string | null;
-          description?: string | null;
-          gocardless_payment_id?: string | null;
-          id?: string;
-          mandate_id?: string | null;
-          redemption_id?: string | null;
-          type: string;
-        };
-        Update: {
-          account_id?: string | null;
-          amount?: number;
-          created_at?: string | null;
-          description?: string | null;
-          gocardless_payment_id?: string | null;
-          id?: string;
-          mandate_id?: string | null;
-          redemption_id?: string | null;
-          type?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "transactions_account_userid_fkey";
-            columns: ["account_id"];
-            isOneToOne: false;
-            referencedRelation: "accounts";
-            referencedColumns: ["user_id"];
-          },
-        ];
-      };
     };
     Views: {
       [_ in never]: never;
@@ -257,36 +296,27 @@ export type Database = {
   };
 };
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<
-  keyof Database,
-  "public"
->];
+type PublicSchema = Database[keyof Database];
 
 export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+  PublicTableNameOrOptions extends
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+        PublicSchema["Views"])
+    ? (PublicSchema["Tables"] &
+        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
         Row: infer R;
       }
       ? R
@@ -294,24 +324,20 @@ export type Tables<
     : never;
 
 export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I;
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
         Insert: infer I;
       }
       ? I
@@ -319,24 +345,20 @@ export type TablesInsert<
     : never;
 
 export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U;
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
         Update: infer U;
       }
       ? U
@@ -344,41 +366,14 @@ export type TablesUpdate<
     : never;
 
 export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+  PublicEnumNameOrOptions extends
+    | keyof PublicSchema["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
     : never;
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals;
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never;
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const;

@@ -1,20 +1,26 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { toast } from '@/hooks/use-toast';
-import { Loader2, ShieldCheck, Lock, Mail } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc';
-import type { User, Session } from '@supabase/supabase-js';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
+import { Loader2, Gift, Lock, Mail } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import type { User, Session } from "@supabase/supabase-js";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -22,25 +28,25 @@ const Auth = () => {
 
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Redirect authenticated users to dashboard
-        if (session?.user) {
-          navigate('/dashboard');
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      // Redirect authenticated users to dashboard
+      if (session?.user) {
+        navigate("/dashboard");
       }
-    );
+    });
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     });
 
@@ -49,16 +55,16 @@ const Auth = () => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName
-        }
-      }
+          full_name: fullName,
+        },
+      },
     });
     return { error };
   };
@@ -66,28 +72,28 @@ const Auth = () => {
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
     return { error };
   };
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
         queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+          access_type: "offline",
+          prompt: "consent",
         },
       },
     });
-    
+
     if (error) {
       toast({
         title: "Google Sign In Failed",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -103,12 +109,12 @@ const Auth = () => {
           toast({
             title: "Login Failed",
             description: error.message,
-            variant: "destructive"
+            variant: "destructive",
           });
         } else {
           toast({
             title: "Welcome back!",
-            description: "You've been successfully logged in."
+            description: "You've been successfully logged in.",
           });
         }
       } else {
@@ -116,22 +122,22 @@ const Auth = () => {
           toast({
             title: "Full Name Required",
             description: "Please enter your full name to create an account.",
-            variant: "destructive"
+            variant: "destructive",
           });
           return;
         }
-        
+
         const { error } = await signUp(email, password, fullName);
         if (error) {
           toast({
             title: "Signup Failed",
             description: error.message,
-            variant: "destructive"
+            variant: "destructive",
           });
         } else {
           toast({
             title: "Account Created!",
-            description: "Please check your email to verify your account."
+            description: "Please check your email to verify your account.",
           });
         }
       }
@@ -139,7 +145,7 @@ const Auth = () => {
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -151,22 +157,23 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <ShieldCheck className="h-12 w-12 text-primary mr-3" />
+            <Gift className="h-12 w-12 text-primary mr-3" />
             <h1 className="text-4xl font-bold text-primary">Treatcode</h1>
           </div>
-          <p className="text-muted-foreground">Secure digital banking platform</p>
+          <p className="text-muted-foreground">
+            Your guilt-free spending stash
+          </p>
         </div>
 
         <Card className="shadow-2xl border-0">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl">
-              {isLogin ? 'Welcome back' : 'Create account'}
+              {isLogin ? "Welcome back" : "Create account"}
             </CardTitle>
             <CardDescription>
-              {isLogin 
-                ? 'Sign in to access your account' 
-                : 'Enter your details to create your secure account'
-              }
+              {isLogin
+                ? "Sign in to access your account"
+                : "Enter your details to create your secure account"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -188,7 +195,7 @@ const Auth = () => {
                   </div>
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -204,7 +211,7 @@ const Auth = () => {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -220,14 +227,14 @@ const Auth = () => {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary" 
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLogin ? 'Sign In' : 'Create Account'}
+                {isLogin ? "Sign In" : "Create Account"}
               </Button>
 
               <div className="relative my-4">
@@ -241,10 +248,10 @@ const Auth = () => {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 type="button"
-                variant="outline" 
-                className="w-full" 
+                variant="outline"
+                className="w-full"
                 onClick={signInWithGoogle}
                 disabled={isLoading}
               >
@@ -252,17 +259,16 @@ const Auth = () => {
                 Continue with Google
               </Button>
             </form>
-            
+
             <div className="mt-6 text-center">
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-primary hover:underline"
               >
-                {isLogin 
-                  ? "Don't have an account? Sign up" 
-                  : "Already have an account? Sign in"
-                }
+                {isLogin
+                  ? "Don't have an account? Sign up"
+                  : "Already have an account? Sign in"}
               </button>
             </div>
           </CardContent>

@@ -74,11 +74,12 @@ export async function createAccount(userId: string, initialBalance: number = 0) 
 }
 
 // Transaction operations
-export async function getTransactions(accountId: string) {
+// Note: transactions.account_id references accounts.user_id (not accounts.id)
+export async function getTransactions(userId: string) {
   const { data, error } = await supabase
     .from('transactions')
     .select('*')
-    .eq('account_id', accountId)
+    .eq('account_id', userId)
     .order('created_at', { ascending: false })
   
   if (error) throw error
@@ -120,9 +121,10 @@ export async function getUserFinancialData(userId: string) {
     }
 
     // After ensuring we have an account, get profile and transactions
+    // Note: transactions.account_id references accounts.user_id (not accounts.id)
     const [profile, transactions] = await Promise.all([
       getProfile(userId),
-      account ? getTransactions(account.id) : Promise.resolve([])
+      account ? getTransactions(userId) : Promise.resolve([])
     ]);
 
     return {

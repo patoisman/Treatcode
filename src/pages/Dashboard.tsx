@@ -14,18 +14,19 @@ import { toast } from "@/hooks/use-toast";
 import {
   LogOut,
   CreditCard,
+  Gift,
   TrendingUp,
   Eye,
   EyeOff,
   ArrowUpRight,
   ArrowDownLeft,
   Calendar,
+  Wallet,
+  History,
 } from "lucide-react";
 import type { User, Session } from "@supabase/supabase-js";
-import { DirectDebitSetup } from "@/components/DirectDebitSetup";
-import { DirectDebitStatus } from "@/components/DirectDebitStatus";
+import { Header } from "@/components/Header";
 import { GoCardlessCallback } from "@/components/GoCardlessCallback";
-import { DepositsHistory } from "@/components/DepositsHistory";
 
 interface Account {
   id: string;
@@ -56,7 +57,6 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showBalance, setShowBalance] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [showDDSetup, setShowDDSetup] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -142,10 +142,10 @@ const Dashboard = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: "USD",
-    }).format(amount);
+      currency: "GBP",
+    }).format(amount / 100);
   };
 
   const formatDate = (dateString: string) => {
@@ -158,8 +158,11 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex flex-col">
+        <Header userEmail={user?.email} userName={profile?.full_name} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
       </div>
     );
   }
@@ -169,14 +172,7 @@ const Dashboard = () => {
   if (ddSetupParam) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-        <header className="bg-card/80 backdrop-blur-sm border-b border-border/50">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <CreditCard className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold text-primary">Treatcode</h1>
-            </div>
-          </div>
-        </header>
+        <Header userEmail={user?.email} userName={profile?.full_name} />
         <main className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[calc(100vh-80px)]">
           <GoCardlessCallback
             onComplete={() => {
@@ -191,196 +187,160 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      {/* Header */}
-      <header className="bg-card/80 backdrop-blur-sm border-b border-border/50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <CreditCard className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Treatcode</h1>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-muted-foreground">
-              Welcome, {profile?.full_name || user?.email}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              className="flex items-center space-x-2"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Sign Out</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header userEmail={user?.email} userName={profile?.full_name} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Account Balance Card */}
-          <Card className="lg:col-span-2 shadow-lg border-0">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg">Treatcode Balance</CardTitle>
-                  <CardDescription>
-                    Available to spend on vouchers
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowBalance(!showBalance)}
-                >
-                  {showBalance ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-primary mb-4">
-                {showBalance ? formatCurrency(account?.balance || 0) : "••••••"}
-              </div>
-              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    Account opened:{" "}
-                    {account?.created_at
-                      ? formatDate(account.created_at)
-                      : "N/A"}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card className="shadow-lg border-0">
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-              <CardDescription>Manage your account</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                onClick={() => setShowDDSetup(!showDDSetup)}
-              >
-                <TrendingUp className="mr-2 h-4 w-4" />
-                {profile?.mandate_status === "active"
-                  ? "Manage Direct Debit"
-                  : "Setup Direct Debit"}
-              </Button>
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                disabled
-              >
-                <ArrowUpRight className="mr-2 h-4 w-4" />
-                Redeem Vouchers
-                <span className="ml-auto text-xs text-muted-foreground">
-                  Coming Soon
-                </span>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Direct Debit Section */}
-          <div className="lg:col-span-3">
-            {profile?.mandate_status === "active" ? (
-              <DirectDebitStatus
-                userId={user?.id || ""}
-                onCancelled={() => {
-                  fetchUserData(user?.id || "");
-                }}
-              />
-            ) : (
-              showDDSetup && (
-                <DirectDebitSetup
-                  onSuccess={() => {
-                    setShowDDSetup(false);
-                    fetchUserData(user?.id || "");
-                  }}
-                />
-              )
-            )}
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
-
-          {/* Deposit History */}
-          {profile?.mandate_status === "active" && (
-            <div className="lg:col-span-3">
-              <DepositsHistory userId={user?.id || ""} limit={10} />
-            </div>
-          )}
-
-          {/* Recent Transactions */}
-          <Card className="lg:col-span-3 shadow-lg border-0">
-            <CardHeader>
-              <CardTitle className="text-lg">Recent Transactions</CardTitle>
-              <CardDescription>Your latest account activity</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {transactions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No transactions yet</p>
-                  <p className="text-sm">
-                    Your transaction history will appear here
-                  </p>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Account Balance Card */}
+            <Card className="lg:col-span-2 shadow-lg border-0">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">Treatcode Balance</CardTitle>
+                    <CardDescription>
+                      Available to spend on vouchers
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowBalance(!showBalance)}
+                  >
+                    {showBalance ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {transactions.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="flex items-center justify-between p-4 rounded-lg bg-muted/30"
-                    >
-                      <div className="flex items-center space-x-3">
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold text-primary mb-4">
+                  {showBalance
+                    ? formatCurrency(account?.balance || 0)
+                    : "••••••"}
+                </div>
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      Account opened:{" "}
+                      {account?.created_at
+                        ? formatDate(account.created_at)
+                        : "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card className="shadow-lg border-0">
+              <CardHeader>
+                <CardTitle className="text-lg">Quick Actions</CardTitle>
+                <CardDescription>Manage your account</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate("/dashboard/direct-debit")}
+                >
+                  <Wallet className="mr-2 h-4 w-4" />
+                  {profile?.mandate_status === "active"
+                    ? "Manage Direct Debit"
+                    : "Setup Direct Debit"}
+                </Button>
+
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate("/dashboard/deposits")}
+                >
+                  <History className="mr-2 h-4 w-4" />
+                  Deposit History
+                </Button>
+
+                <Button
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => navigate("/dashboard/redemptions")}
+                >
+                  <Gift className="mr-2 h-4 w-4" />
+                  Redemption History
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Recent Transactions */}
+            <Card className="lg:col-span-3 shadow-lg border-0">
+              <CardHeader>
+                <CardTitle className="text-lg">Recent Transactions</CardTitle>
+                <CardDescription>Your latest account activity</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {transactions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No transactions yet</p>
+                    <p className="text-sm">
+                      Your transaction history will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {transactions.map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted/30"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`p-2 rounded-full ${
+                              transaction.type === "credit"
+                                ? "bg-accent/20 text-accent"
+                                : "bg-destructive/20 text-destructive"
+                            }`}
+                          >
+                            {transaction.type === "credit" ? (
+                              <ArrowDownLeft className="h-4 w-4" />
+                            ) : (
+                              <ArrowUpRight className="h-4 w-4" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">
+                              {transaction.description || "Transaction"}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {formatDate(transaction.created_at)}
+                            </p>
+                          </div>
+                        </div>
                         <div
-                          className={`p-2 rounded-full ${
+                          className={`font-semibold ${
                             transaction.type === "credit"
-                              ? "bg-accent/20 text-accent"
-                              : "bg-destructive/20 text-destructive"
+                              ? "text-accent"
+                              : "text-destructive"
                           }`}
                         >
-                          {transaction.type === "credit" ? (
-                            <ArrowDownLeft className="h-4 w-4" />
-                          ) : (
-                            <ArrowUpRight className="h-4 w-4" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {transaction.description || "Transaction"}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatDate(transaction.created_at)}
-                          </p>
+                          {transaction.type === "credit" ? "+" : "-"}
+                          {formatCurrency(Math.abs(transaction.amount))}
                         </div>
                       </div>
-                      <div
-                        className={`font-semibold ${
-                          transaction.type === "credit"
-                            ? "text-accent"
-                            : "text-destructive"
-                        }`}
-                      >
-                        {transaction.type === "credit" ? "+" : "-"}
-                        {formatCurrency(Math.abs(transaction.amount))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </main>
     </div>
   );
