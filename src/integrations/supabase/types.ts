@@ -47,6 +47,7 @@ export type Database = {
           gocardless_customer_id: string | null;
           gocardless_mandate_id: string | null;
           mandate_status: "pending" | "active" | "cancelled" | "expired" | null;
+          is_admin: boolean;
         };
         Insert: {
           id: string;
@@ -61,6 +62,7 @@ export type Database = {
             | "cancelled"
             | "expired"
             | null;
+          is_admin?: boolean;
         };
         Update: {
           id?: string;
@@ -75,6 +77,7 @@ export type Database = {
             | "cancelled"
             | "expired"
             | null;
+          is_admin?: boolean;
         };
         Relationships: [
           {
@@ -279,6 +282,62 @@ export type Database = {
           created_at?: string | null;
         };
         Relationships: [];
+      };
+      redemptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          brand_name: string;
+          brand_slug: string;
+          amount: number;
+          status: "pending" | "fulfilled" | "cancelled";
+          voucher_code: string | null;
+          voucher_instructions: string | null;
+          admin_notes: string | null;
+          fulfilled_at: string | null;
+          cancelled_at: string | null;
+          cancellation_reason: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          brand_name: string;
+          brand_slug: string;
+          amount: number;
+          status?: "pending" | "fulfilled" | "cancelled";
+          voucher_code?: string | null;
+          voucher_instructions?: string | null;
+          admin_notes?: string | null;
+          fulfilled_at?: string | null;
+          cancelled_at?: string | null;
+          cancellation_reason?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          brand_name?: string;
+          brand_slug?: string;
+          amount?: number;
+          status?: "pending" | "fulfilled" | "cancelled";
+          voucher_code?: string | null;
+          voucher_instructions?: string | null;
+          admin_notes?: string | null;
+          fulfilled_at?: string | null;
+          cancelled_at?: string | null;
+          cancellation_reason?: string | null;
+          created_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "redemptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {

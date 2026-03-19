@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Gift, LogOut, Menu, User, LogIn } from "lucide-react";
+import { Gift, LogOut, Menu, User, LogIn, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -15,9 +15,10 @@ import { useState } from "react";
 interface HeaderProps {
   userEmail?: string | null;
   userName?: string | null;
+  isAdmin?: boolean;
 }
 
-export const Header = ({ userEmail, userName }: HeaderProps) => {
+export const Header = ({ userEmail, userName, isAdmin }: HeaderProps) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const isLoggedIn = !!(userEmail || userName);
@@ -65,6 +66,17 @@ export const Header = ({ userEmail, userName }: HeaderProps) => {
               <span className="text-sm text-muted-foreground">
                 Welcome, {userName || userEmail}
               </span>
+              {isAdmin && (
+                <Button
+                  onClick={() => handleNavigation("/admin")}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Admin</span>
+                </Button>
+              )}
               <Button onClick={() => handleNavigation("/dashboard")} variant="default" size="sm">
                 Dashboard
               </Button>
@@ -114,6 +126,16 @@ export const Header = ({ userEmail, userName }: HeaderProps) => {
                       <User className="h-4 w-4" />
                       <span>{userName || userEmail}</span>
                     </div>
+                    {isAdmin && (
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={() => handleNavigation("/admin")}
+                      >
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        Admin
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       className="justify-start"

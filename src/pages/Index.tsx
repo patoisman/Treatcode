@@ -1,16 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ShieldCheck,
   Gift,
   CreditCard,
   PiggyBank,
@@ -20,31 +11,11 @@ import {
   TrendingUp,
   ShoppingBag,
 } from "lucide-react";
-import type { User, Session } from "@supabase/supabase-js";
 import { Header } from "@/components/Header";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Set up auth state listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
@@ -56,7 +27,7 @@ const Index = () => {
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="inline-block p-2 px-4 rounded-full bg-secondary/50 mb-4 animate-fade-in">
             <span className="text-sm font-medium text-muted-foreground">
-              ✨ Fun shouldn't feel reckless
+              ✨ Pay Now Buy Later
             </span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-foreground leading-tight">
@@ -82,7 +53,7 @@ const Index = () => {
           <div className="pt-8">
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               You work hard. A new pair of trainers or that skincare haul
-              shouldn’t spark payday panic.
+              shouldn't spark payday panic.
             </p>
           </div>
 
@@ -109,7 +80,7 @@ const Index = () => {
               </h2>
               <div className="prose prose-lg text-muted-foreground space-y-4">
                 <p className="text-xl">
-                  You’re not spending — you’re cashing in.
+                  You're not spending — you're cashing in.
                 </p>
                 <p>
                   Each month, you set aside a little money into your Treatcode
@@ -122,7 +93,6 @@ const Index = () => {
               </div>
             </div>
             <div className="relative">
-              {/* Visual abstract representation */}
               <div className="aspect-square rounded-3xl bg-gradient-to-tr from-primary/20 to-purple-500/20 p-8 flex items-center justify-center">
                 <div className="grid gap-6 w-full max-w-sm">
                   {/* Card 1: Accumulation */}
@@ -265,7 +235,6 @@ const Index = () => {
 
       {/* Social Proof / CTA */}
       <section className="py-16 md:py-24 bg-background relative overflow-hidden">
-        {/* Decorative background elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
           <div className="absolute top-10 left-10 w-64 h-64 bg-purple-100 rounded-full blur-[100px]"></div>
           <div className="absolute bottom-10 right-10 w-64 h-64 bg-blue-100 rounded-full blur-[100px]"></div>
@@ -321,16 +290,27 @@ const Index = () => {
               <Gift className="h-6 w-6 text-primary-foreground" />
               <span className="text-xl font-bold">Treatcode</span>
             </div>
-            <div className="flex gap-8 text-primary-foreground/90 text-sm">
-              <a href="#" className="hover:text-white transition-colors">
-                Privacy
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Terms
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Support
-              </a>
+            <div className="flex flex-col items-center gap-3 text-primary-foreground/90 text-sm">
+              <div className="flex gap-8">
+                <a href="#" className="hover:text-white transition-colors">
+                  Privacy
+                </a>
+                <a href="#" className="hover:text-white transition-colors">
+                  Terms
+                </a>
+                <a href="#" className="hover:text-white transition-colors">
+                  Support
+                </a>
+              </div>
+              <p className="text-xs opacity-90 text-center">
+                Need help? Contact us at{" "}
+                <a
+                  href="mailto:treatcode@treatcode.com"
+                  className="underline underline-offset-2 hover:text-white transition-colors"
+                >
+                  treatcode@treatcode.com
+                </a>
+              </p>
             </div>
             <div className="text-primary-foreground/70 text-sm text-center md:text-right">
               <p>© 2026 Treat Code Ltd. All rights reserved.</p>

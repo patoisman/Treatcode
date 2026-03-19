@@ -4,6 +4,7 @@ import type { Database } from './types'
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Account = Database['public']['Tables']['accounts']['Row']
 type Transaction = Database['public']['Tables']['transactions']['Row']
+type Redemption = Database['public']['Tables']['redemptions']['Row']
 
 // Profile operations
 export async function getProfile(userId: string) {
@@ -107,6 +108,30 @@ export async function createTransaction(
   
   if (error) throw error
   return data
+}
+
+// Redemption operations
+export async function getUserRedemptions(userId: string): Promise<Redemption[]> {
+  const { data, error } = await supabase
+    .from('redemptions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data || []
+}
+
+// Check if a user has admin privileges
+export async function checkIsAdmin(userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', userId)
+    .single()
+
+  if (error) return false
+  return data?.is_admin === true
 }
 
 // Fetch user's complete financial data

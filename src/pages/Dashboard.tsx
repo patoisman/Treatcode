@@ -12,10 +12,8 @@ import {
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import {
-  LogOut,
   CreditCard,
   Gift,
-  TrendingUp,
   Eye,
   EyeOff,
   ArrowUpRight,
@@ -24,9 +22,9 @@ import {
   Wallet,
   History,
 } from "lucide-react";
-import type { User, Session } from "@supabase/supabase-js";
 import { Header } from "@/components/Header";
 import { GoCardlessCallback } from "@/components/GoCardlessCallback";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Account {
   id: string;
@@ -46,54 +44,28 @@ interface Profile {
   id: string;
   full_name: string;
   email: string;
+  is_admin: boolean;
+  mandate_status: string | null;
   created_at: string;
 }
 
 const Dashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const { user } = useAuth();
   const [account, setAccount] = useState<Account | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showBalance, setShowBalance] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (!session?.user) {
-        navigate("/auth");
-      } else {
-        // Fetch user data when authenticated
-        setTimeout(() => {
-          fetchUserData(session.user.id);
-        }, 0);
-      }
-    });
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (!session?.user) {
-        navigate("/auth");
-      } else {
-        fetchUserData(session.user.id);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (!user) return;
+    fetchUserData(user.id);
+  }, [user]);
 
   const fetchUserData = async (userId: string) => {
+    setIsLoadingData(true);
     try {
       const {
         profile: profileData,
@@ -104,12 +76,11 @@ const Dashboard = () => {
       setProfile(profileData || null);
       setAccount(accountData || null);
 
-      // Cast the type field to ensure TypeScript compatibility
       const typedTransactions = (transactionsData || []).map((transaction) => ({
         ...transaction,
         type: transaction.type as "credit" | "debit",
       }));
-      setTransactions(typedTransactions.slice(0, 10)); // Limit to 10 most recent transactions
+      setTransactions(typedTransactions.slice(0, 10));
     } catch (error: any) {
       console.error("Error fetching user data:", error);
       toast({
@@ -120,7 +91,7 @@ const Dashboard = () => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingData(false);
     }
   };
 
@@ -156,27 +127,19 @@ const Dashboard = () => {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex flex-col">
-        <Header userEmail={user?.email} userName={profile?.full_name} />
-        <div className="flex-1 flex items-center justify-center pt-24">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </div>
-    );
-  }
-
   // Check if we're handling a GoCardless callback
   const ddSetupParam = searchParams.get("dd_setup");
   if (ddSetupParam) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-        <Header userEmail={user?.email} userName={profile?.full_name} />
+        <Header
+          userEmail={user?.email}
+          userName={profile?.full_name}
+          isAdmin={profile?.is_admin === true}
+        />
         <main className="container mx-auto px-4 pt-24 pb-8 flex items-center justify-center min-h-[calc(100vh)]">
           <GoCardlessCallback
             onComplete={() => {
-              // Clear URL params and reload data
               window.location.href = "/dashboard";
             }}
           />
@@ -187,11 +150,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      <Header userEmail={user?.email} userName={profile?.full_name} />
+      <Header
+        userEmail={user?.email}
+        userName={profile?.full_name}
+        isAdmin={profile?.is_admin === true}
+      />
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 pt-24 pb-12">
-        {isLoading ? (
+        {isLoadingData ? (
           <div className="flex items-center justify-center min-h-[50vh]">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
