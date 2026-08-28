@@ -1,11 +1,11 @@
 import type { LegalDocument } from "../types";
-import { LEGAL_COMPANY, LEGAL_LAST_UPDATED } from "../constants";
+import { LEGAL_COMPANY, LEGAL_PRIVACY_LAST_UPDATED } from "../constants";
 
 const { name, brand, companyNumber, email } = LEGAL_COMPANY;
 
 export const privacyPolicy: LegalDocument = {
   title: "Privacy Policy",
-  lastUpdated: LEGAL_LAST_UPDATED,
+  lastUpdated: LEGAL_PRIVACY_LAST_UPDATED,
   intro: [
     `This Privacy Policy explains how ${name} ("${brand}", "we", "us" or "our") collects, uses, shares and protects your personal information when you use the ${brand} website and app (the "Service"). We are committed to handling your data responsibly and in line with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.`,
     `By creating an account or using the Service, you acknowledge that you have read and understood this policy.`,
@@ -14,7 +14,7 @@ export const privacyPolicy: LegalDocument = {
     {
       heading: "1. Who we are",
       blocks: [
-        `${name} is a company registered in England and Wales (company number ${companyNumber}). We are the "data controller" responsible for your personal information. If you have any questions about this policy or how we use your data, you can contact us at ${email}.`,
+        `${name} is a company registered in England and Wales (company number ${companyNumber}). We are the "data controller" responsible for your personal information. If you have any questions about this policy or how we use your data, you can contact us at [${email}](mailto:${email}).`,
       ],
     },
     {
@@ -110,7 +110,7 @@ export const privacyPolicy: LegalDocument = {
             "Withdraw consent where we rely on it.",
           ],
         },
-        `To exercise any of these rights, contact us at ${email}. You also have the right to lodge a complaint with the UK's Information Commissioner's Office (ICO) at ico.org.uk.`,
+        `To exercise any of these rights, contact us at [${email}](mailto:${email}). You also have the right to lodge a complaint with the UK's Information Commissioner's Office (ICO) at ico.org.uk.`,
       ],
     },
     {
@@ -134,7 +134,7 @@ export const privacyPolicy: LegalDocument = {
     {
       heading: "13. Contact us",
       blocks: [
-        `If you have any questions, concerns or requests regarding this policy or your personal information, please contact us at ${email}.`,
+        `If you have any questions, concerns or requests regarding this policy or your personal information, please contact us at [${email}](mailto:${email}).`,
       ],
     },
   ],

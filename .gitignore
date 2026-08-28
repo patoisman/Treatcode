@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 .claude
 
 AGENTS.md
+
+# Local scratch files not meant for the repo
+extras/

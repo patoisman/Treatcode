@@ -1,5 +1,13 @@
-// A block is either a paragraph (string) or a bulleted list ({ list }).
-export type LegalBlock = string | { list: string[] };
+// A block can be a paragraph, a bulleted list, an unbulleted line group (e.g.
+// an address block), a bold standalone subheading, or a set of numbered
+// sub-clauses (e.g. "1.1", "1.2") with bold numbers. Paragraph, list and line
+// text may contain **bold** markdown, rendered as <strong>.
+export type LegalBlock =
+  | string
+  | { list: string[] }
+  | { lines: string[] }
+  | { subheading: string }
+  | { clauses: { number: string; text: string }[] };
 
 export interface LegalSection {
   heading: string;
